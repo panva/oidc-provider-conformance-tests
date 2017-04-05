@@ -1,0 +1,14 @@
+language: node_js
+install:
+  - npm install --production
+script:
+  - npm run travis
+node_js:
+  - stable
+env:
+  - PROFILE=code
+  - PROFILE=id_token
+  - PROFILE=id_token+token
+  - PROFILE=code+id_token
+  - PROFILE=code+id_token+token
+  - PROFILE=code+token

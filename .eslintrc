@@ -1,0 +1,15 @@
+{
+  "extends": "airbnb-base",
+  "env": {
+    "browser": true,
+    "mocha": true
+  },
+  "rules": {
+    "func-names": "off",
+    "no-new-func": "off",
+    "prefer-arrow-callback": "off"
+  },
+  "globals": {
+    "page": true
+  }
+}
