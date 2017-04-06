@@ -1,2 +1,2 @@
-const { PROFILE } = process.env;
-require(`./${PROFILE}`); // eslint-disable-line
+const { RESPONSE_TYPE } = process.env;
+require(`./${RESPONSE_TYPE}`); // eslint-disable-line

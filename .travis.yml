@@ -6,9 +6,9 @@ script:
 node_js:
   - stable
 env:
-  - PROFILE=code
-  - PROFILE=id_token
-  - PROFILE=id_token+token
-  - PROFILE=code+id_token
-  - PROFILE=code+id_token+token
-  - PROFILE=code+token
+  - RESPONSE_TYPE=code
+  - RESPONSE_TYPE=id_token
+  - RESPONSE_TYPE=id_token+token
+  - RESPONSE_TYPE=code+id_token
+  - RESPONSE_TYPE=code+id_token+token
+  - RESPONSE_TYPE=code+token
