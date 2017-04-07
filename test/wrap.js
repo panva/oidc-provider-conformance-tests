@@ -1,5 +1,5 @@
 const phantom = require('phantom');
-const { restart } = require('./helpers.js');
+const { restart } = require('./helpers');
 
 let instance;
 

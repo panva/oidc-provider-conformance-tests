@@ -1,10 +1,10 @@
 const assert = require('assert');
-const { login, proceed, passed } = require('../helpers.js');
+const { testUrl, login, proceed, passed } = require('../helpers');
 
 it('OP-OAuth-2nd-30s', async function () {
   const test = this.test.title;
 
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
   await proceed();
   await login();
 

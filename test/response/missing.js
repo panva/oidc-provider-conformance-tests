@@ -1,9 +1,9 @@
 const assert = require('assert');
-const { proceed, passed } = require('../helpers.js');
+const { testUrl, proceed, passed } = require('../helpers');
 
 it('OP-Response-Missing', async function () {
   const test = this.test.title;
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
 
   await proceed();
   assert(await passed(test));

@@ -1,1 +1,1 @@
-it('OP-request_uri-Enc', require('../helpers.js').regular);
+it('OP-request_uri-Enc', require('../helpers').regular);

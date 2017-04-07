@@ -1,10 +1,27 @@
 const assert = require('assert');
 const path = require('path');
+const url = require('url');
 const _ = require('lodash');
 const got = require('got');
 
+const {
+  ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
+  TEST_PORT = 60917,
+  TEST_HOSTNAME = 'op.certification.openid.net',
+  TEST_PROTOCOL = 'https',
+} = process.env;
+
+function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostname = TEST_HOSTNAME } = {}) {
+  return url.format({ protocol, port, hostname, pathname });
+}
+
+async function clearCookies(resource = `${ISSUER}/.well-known/openid-configuration`) {
+  await page.open(resource);
+  await page.clearCookies();
+}
+
 function passed(test) {
-  const selector = `a[href="https://op.certification.openid.net:60917/${test}"] > img[alt=Green]`;
+  const selector = `a[href="${testUrl(test)}"] > img[alt=Green]`;
   const fn = Function(`return !!document.querySelector('${selector}')`);
   return page.evaluate(fn);
 }
@@ -43,40 +60,46 @@ async function login(loginValue = 'foo', passwordValue = 'bar') {
 async function nointeraction() {
   const test = this.test.title;
   const nav = navigation();
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
   await nav;
   assert(await passed(test));
 }
 
 async function captureError() {
   const test = this.test.title;
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
   await proceed();
   await page.render(`${test}.png`);
 }
 
 async function regular() {
   const test = this.test.title;
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
 
   await login();
   assert(await passed(test));
 }
 
-async function clearCookies(url = 'https://guarded-cliffs-8635.herokuapp.com/.well-known/openid-configuration') {
-  await page.open(url);
-  await page.clearCookies();
+async function clearCaptureView() {
+  const test = this.test.title;
+  await clearCookies();
+  await page.open(testUrl(test));
+  await proceed();
+  await page.render(`${test}.png`);
+  await login();
+
+  assert(await passed(test));
 }
 
 async function restart(profile = global.profile) {
-  await got.post('https://op.certification.openid.net:60000/restart_test_instance', {
+  await got.post(testUrl('restart_test_instance', { port: 60000 }), {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      issuer: 'https://guarded-cliffs-8635.herokuapp.com',
+      issuer: ISSUER,
       instance_id: 'Test',
     }),
   });
-  return got.post('https://op.certification.openid.net:60917/profile', {
+  return got.post(testUrl('profile'), {
     body: profile,
   });
 }
@@ -115,6 +138,7 @@ async function runSuite(rtype) {
 
 module.exports = {
   captureError,
+  clearCaptureView,
   clearCookies,
   login,
   navigation,
@@ -124,6 +148,7 @@ module.exports = {
   regular,
   restart,
   runSuite,
+  testUrl,
 };
 
 // await page.property('viewportSize', { width: 800, height: 600 });

@@ -1,1 +1,1 @@
-it('OP-prompt-none-LoggedIn', require('../helpers.js').regular);
+it('OP-prompt-none-LoggedIn', require('../helpers').regular);

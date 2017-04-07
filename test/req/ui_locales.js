@@ -1,10 +1,10 @@
 const assert = require('assert');
-const { login, proceed, passed, clearCookies } = require('../helpers.js');
+const { testUrl, login, proceed, passed, clearCookies } = require('../helpers');
 
 it('OP-Req-ui_locales', async function () {
   const test = this.test.title;
   await clearCookies();
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
   await proceed();
 
   await page.render(`${test}.png`);

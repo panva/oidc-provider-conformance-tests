@@ -1,1 +1,1 @@
-it('OP-Registration-jwks_uri', require('../helpers.js').regular);
+it('OP-Registration-jwks_uri', require('../helpers').regular);

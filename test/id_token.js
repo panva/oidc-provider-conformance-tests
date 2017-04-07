@@ -1,4 +1,4 @@
-const { runSuite } = require('./helpers.js');
+const { runSuite } = require('./helpers');
 
 runSuite('I').catch((err) => {
   console.error(err); // eslint-disable-line

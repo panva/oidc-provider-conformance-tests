@@ -1,1 +1,1 @@
-it('OP-Registration-Sub-Pairwise', require('../helpers.js').regular);
+it('OP-Registration-Sub-Pairwise', require('../helpers').regular);

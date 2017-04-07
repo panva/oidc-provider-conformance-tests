@@ -1,1 +1,1 @@
-it('OP-Registration-Sub-Public', require('../helpers.js').regular);
+it('OP-Registration-Sub-Public', require('../helpers').regular);

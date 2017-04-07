@@ -1,1 +1,1 @@
-it('OP-Registration-Read', require('../helpers.js').nointeraction);
+it('OP-Registration-Read', require('../helpers').nointeraction);

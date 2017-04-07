@@ -1,11 +1,11 @@
 const assert = require('assert');
-const { login, proceed, passed, restart } = require('../helpers.js');
+const { testUrl, login, proceed, passed, restart } = require('../helpers');
 
 it('OP-redirect_uri-MissingOK', async function () {
   await restart(); // otherwise the OP testing software sends more URIs
 
   const test = this.test.title;
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
   await proceed();
   await login();
 

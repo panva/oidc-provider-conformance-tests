@@ -1,1 +1,1 @@
-it.skip('OP-Rotation-RP-Sig', require('../helpers.js').regular);
+it.skip('OP-Rotation-RP-Sig', require('../helpers').regular);

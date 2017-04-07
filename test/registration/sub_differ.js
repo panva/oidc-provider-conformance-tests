@@ -1,9 +1,9 @@
 const assert = require('assert');
-const { login, passed } = require('../helpers.js');
+const { testUrl, login, passed } = require('../helpers');
 
 it('OP-Registration-Sub-Differ', async function () {
   const test = this.test.title;
-  await page.open(`https://op.certification.openid.net:60917/${test}`);
+  await page.open(testUrl(test));
   await login();
   await login();
 
