@@ -6,8 +6,8 @@ const got = require('got');
 
 const {
   ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
-  TEST_PORT = 60917,
-  TEST_HOSTNAME = 'op.certification.openid.net',
+  TEST_PORT = 60004,
+  TEST_HOSTNAME = 'new-op.certification.openid.net',
   TEST_PROTOCOL = 'https',
 } = process.env;
 
@@ -105,19 +105,18 @@ async function restart(profile = global.profile) {
 }
 
 async function runSuite(rtype) {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  global.profile = {
-    rtype,
-    encryption: 'on',
-    none: 'on',
-    signing: 'on',
-    extra: 'on',
-  };
-  const { body } = await restart();
+  const { body } = await got.post(testUrl('profile'), {
+    body: {
+      rtype,
+      encryption: 'on',
+      none: 'on',
+      signing: 'on',
+      extra: 'on',
+    },
+  });
 
   const mocha = path.join(process.cwd(), 'node_modules', '.bin', '_mocha');
   const args = [mocha];
-  args.push('--bail');
   args.push('--async-only');
   args.push('--timeout');
   args.push('60000');

@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { testUrl, login, proceed, passed } = require('../helpers');
 
-it.skip('OP-Req-max_age=1', async function () {
+it('OP-Req-max_age=1', async function () {
   const test = this.test.title;
   await page.open(testUrl(test));
   await login();
