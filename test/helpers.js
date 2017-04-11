@@ -11,7 +11,7 @@ const {
   TEST_PROTOCOL = 'https',
 } = process.env;
 
-function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostname = TEST_HOSTNAME } = {}) {
+function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostname = TEST_HOSTNAME } = {}) { // eslint-disable-line
   return url.format({ protocol, port, hostname, pathname });
 }
 
@@ -115,6 +115,16 @@ async function runSuite(rtype) {
     },
   });
 
+  const assertedTestType = rtype.split('').map((letter) => { // eslint-disable-line
+    switch (letter) { // eslint-disable-line
+      case 'C': return 'code';
+      case 'I': return 'id_token';
+      case 'T': return 'token';
+    }
+  }).join('+');
+
+  assert(body.includes(`OP-Response-${assertedTestType}`), 'response type could not be set');
+
   const mocha = path.join(process.cwd(), 'node_modules', '.bin', '_mocha');
   const args = [mocha];
   args.push('--async-only');
@@ -124,7 +134,9 @@ async function runSuite(rtype) {
   args.push('test/wrap.js');
 
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
-    const [folder, ...file] = test.slice(4, -1).split('-');
+    const name = test.slice(4, -1);
+    console.log('detected test', name); // eslint-disable-line
+    const [folder, ...file] = name.split('-');
     args.push(`test/${_.snakeCase(folder)}/${_.snakeCase(file)}.js`);
   });
 
@@ -149,5 +161,3 @@ module.exports = {
   runSuite,
   testUrl,
 };
-
-// await page.property('viewportSize', { width: 800, height: 600 });
