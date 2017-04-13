@@ -104,18 +104,18 @@ async function restart(profile = global.profile) {
   });
 }
 
-async function runSuite(rtype) {
+async function runSuite(responseType) {
   const { body } = await got.post(testUrl('profile'), {
     body: {
-      rtype,
-      encryption: 'on',
+      return_type: responseType,
+      enc: 'on',
       none: 'on',
-      signing: 'on',
+      sig: 'on',
       extra: 'on',
     },
   });
 
-  const assertedTestType = rtype.split('').map((letter) => { // eslint-disable-line
+  const assertedTestType = responseType.split('').map((letter) => { // eslint-disable-line
     switch (letter) { // eslint-disable-line
       case 'C': return 'code';
       case 'I': return 'id_token';
