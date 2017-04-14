@@ -1,1 +1,1 @@
-it('OP-IDToken-none', require('../helpers').regular);
+it.skip('OP-IDToken-none', require('../helpers').regular); // investigated - uses code+id_token rtype instead of code, is falsly shown in non-code flows, when configured through the test website (60004) still uses the response type from initial configuration (60000)

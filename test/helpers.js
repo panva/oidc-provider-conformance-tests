@@ -50,7 +50,11 @@ async function login(loginValue = 'foo', passwordValue = 'bar') {
   const fn = Function(`
     if (document.forms[0].login) document.forms[0].login.value = '${loginValue}';
     if (document.forms[0].password) document.forms[0].password.value = '${passwordValue}';
-    document.forms[0].submit();
+    if (document.forms[0]) {
+      document.forms[0].submit();
+    } else {
+      return false;
+    }
   `);
   const nav = navigation();
   await page.evaluate(fn);
@@ -91,40 +95,46 @@ async function clearCaptureView() {
   assert(await passed(test));
 }
 
-async function restart(profile = global.profile) {
-  await got.post(testUrl('restart_test_instance', { port: 60000 }), {
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      issuer: ISSUER,
-      instance_id: 'Test',
-    }),
-  });
-  return got.post(testUrl('profile'), {
-    body: profile,
-  });
+async function configure(type) {
+  const body = {
+    'tool:issuer': ISSUER,
+    'tool:tag': 'guarded-cliffs',
+    'tool:register': 'True',
+    'tool:discover': 'True',
+    'tool:webfinger': 'True',
+    'tool:return_type': type,
+    'tool:webfinger_email': 'acct:foobar@guarded-cliffs-8635.herokuapp.com',
+    'tool:webfinger_url': `${ISSUER}/foobar`,
+    'tool:acr_values': 'urn:mace:incommon:iap:bronze session',
+    'tool:claims_locales': '',
+    'tool:enc': 'True',
+    'tool:extra': 'True',
+    'tool:insecure': 'True',
+    'tool:login_hint': 'bob@example.com',
+    'tool:none': 'True',
+    'tool:profile': '',
+    'tool:sig': 'True',
+    'tool:ui_locales': '',
+  };
+
+  await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/guarded-cliffs`, {
+    protocol: 'http',
+    port: 60000,
+  }), { body });
 }
 
 async function runSuite(responseType) {
-  const { body } = await got.post(testUrl('profile'), {
-    body: {
-      return_type: responseType,
-      enc: 'on',
-      none: 'on',
-      sig: 'on',
-      extra: 'on',
-    },
-  });
-
   const assertedTestType = responseType.split('').map((letter) => { // eslint-disable-line
     switch (letter) { // eslint-disable-line
       case 'C': return 'code';
       case 'I': return 'id_token';
       case 'T': return 'token';
     }
-  }).join('+');
+  }).join(' ');
 
-  assert(body.includes(`OP-Response-${assertedTestType}`), 'response type could not be set');
+  await configure(assertedTestType);
 
+  const { body } = await got.get(testUrl());
   const mocha = path.join(process.cwd(), 'node_modules', '.bin', '_mocha');
   const args = [mocha];
   args.push('--async-only');
@@ -135,7 +145,6 @@ async function runSuite(responseType) {
 
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
     const name = test.slice(4, -1);
-    console.log('detected test', name); // eslint-disable-line
     const [folder, ...file] = name.split('-');
     args.push(`test/${_.snakeCase(folder)}/${_.snakeCase(file)}.js`);
   });
@@ -157,7 +166,6 @@ module.exports = {
   passed,
   proceed,
   regular,
-  restart,
   runSuite,
   testUrl,
 };

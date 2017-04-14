@@ -1,3 +1,1 @@
-// TODO: investigate
-
-it.skip('OP-nonce-noncode', require('../helpers').regular);
+it.skip('OP-nonce-noncode', require('../helpers').regular); // investigated - cannot get results, looks like a python error; status=ERROR, message=provider_config() missing 1 required positional argument: 'issuer'
