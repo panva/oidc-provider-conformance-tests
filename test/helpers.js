@@ -1,4 +1,3 @@
-const assert = require('assert');
 const path = require('path');
 const url = require('url');
 const _ = require('lodash');
@@ -9,6 +8,7 @@ const {
   TEST_PORT = 60004,
   TEST_HOSTNAME = 'new-op.certification.openid.net',
   TEST_PROTOCOL = 'https',
+  TAG = 'guarded-cliffs',
 } = process.env;
 
 function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostname = TEST_HOSTNAME } = {}) { // eslint-disable-line
@@ -20,10 +20,18 @@ async function clearCookies(resource = `${ISSUER}/.well-known/openid-configurati
   await page.clearCookies();
 }
 
-function passed(test) {
-  const selector = `a[href="${testUrl(test)}"] > img[alt=Green]`;
-  const fn = Function(`return !!document.querySelector('${selector}')`);
-  return page.evaluate(fn);
+async function passed(test) {
+  const selector = `a[href="${testUrl(test)}"] > img`;
+  const fn = Function(`
+    const img = document.querySelector('${selector}');
+    if (img) {
+      return img.alt;
+    } else {
+      return "no status found";
+    }
+    `);
+  const alt = await page.evaluate(fn);
+  if (alt !== 'Green') throw new Error(`expected status to be Green, but got "${alt}"`);
 }
 
 function navigation() {
@@ -40,24 +48,27 @@ function navigation() {
 
 async function proceed() {
   const nav = navigation();
-  await page.evaluate(function () {
-    document.querySelector('a[href*=continue]').click();
+  const clicked = await page.evaluate(function () {
+    const link = document.querySelector('a[href*=continue]');
+    if (link) {
+      return link.click();
+    }
+    return false;
   });
+  if (clicked === false) throw new Error('expected continue link to be present');
   await nav;
 }
 
 async function login(loginValue = 'foo', passwordValue = 'bar') {
   const fn = Function(`
+    if (!document.forms[0]) return false;
     if (document.forms[0].login) document.forms[0].login.value = '${loginValue}';
     if (document.forms[0].password) document.forms[0].password.value = '${passwordValue}';
-    if (document.forms[0]) {
-      document.forms[0].submit();
-    } else {
-      return false;
-    }
+    document.forms[0].submit();
   `);
   const nav = navigation();
-  await page.evaluate(fn);
+  const clicked = await page.evaluate(fn);
+  if (clicked === false) throw new Error('expected a form to be present');
   await nav;
 }
 
@@ -66,7 +77,7 @@ async function nointeraction() {
   const nav = navigation();
   await page.open(testUrl(test));
   await nav;
-  assert(await passed(test));
+  await passed(test);
 }
 
 async function captureError() {
@@ -81,7 +92,7 @@ async function regular() {
   await page.open(testUrl(test));
 
   await login();
-  assert(await passed(test));
+  await passed(test);
 }
 
 async function clearCaptureView() {
@@ -92,18 +103,18 @@ async function clearCaptureView() {
   await page.render(`${test}.png`);
   await login();
 
-  assert(await passed(test));
+  await passed(test);
 }
 
 async function configure(type) {
   const body = {
     'tool:issuer': ISSUER,
-    'tool:tag': 'guarded-cliffs',
+    'tool:tag': TAG,
     'tool:register': 'True',
     'tool:discover': 'True',
     'tool:webfinger': 'True',
     'tool:return_type': type,
-    'tool:webfinger_email': 'acct:foobar@guarded-cliffs-8635.herokuapp.com',
+    'tool:webfinger_email': `acct:foobar@${url.parse(ISSUER).hostname}`,
     'tool:webfinger_url': `${ISSUER}/foobar`,
     'tool:acr_values': 'urn:mace:incommon:iap:bronze session',
     'tool:claims_locales': '',
@@ -117,14 +128,14 @@ async function configure(type) {
     'tool:ui_locales': '',
   };
 
-  await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/guarded-cliffs`, {
+  await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${TAG}`, {
     protocol: 'http',
     port: 60000,
   }), { body });
 }
 
-async function runSuite(responseType) {
-  const assertedTestType = responseType.split('').map((letter) => { // eslint-disable-line
+async function runSuite(profile) {
+  const responseType = profile.split('').map((letter) => { // eslint-disable-line
     switch (letter) { // eslint-disable-line
       case 'C': return 'code';
       case 'I': return 'id_token';
@@ -132,7 +143,7 @@ async function runSuite(responseType) {
     }
   }).join(' ');
 
-  await configure(assertedTestType);
+  await configure(responseType);
 
   const { body } = await got.get(testUrl());
   const mocha = path.join(process.cwd(), 'node_modules', '.bin', '_mocha');

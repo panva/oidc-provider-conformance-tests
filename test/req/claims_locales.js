@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { testUrl, navigation, login, proceed, passed } = require('../helpers');
 
 it('OP-Req-claims_locales', async function () {
@@ -13,5 +12,5 @@ it('OP-Req-claims_locales', async function () {
     await proceed();
   }
 
-  assert(await passed(test));
+  await passed(test);
 });

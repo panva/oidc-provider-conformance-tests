@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { testUrl, login, proceed, passed } = require('../helpers');
 
 it('OP-prompt-login', async function () {
@@ -9,5 +8,5 @@ it('OP-prompt-login', async function () {
   await page.render(`${test}.png`);
   await login();
 
-  assert(await passed(test));
+  await passed(test);
 });

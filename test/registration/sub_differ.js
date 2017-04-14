@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { testUrl, login, passed } = require('../helpers');
 
 it('OP-Registration-Sub-Differ', async function () {
@@ -7,5 +6,5 @@ it('OP-Registration-Sub-Differ', async function () {
   await login();
   await login();
 
-  assert(await passed(test));
+  await passed(test);
 });

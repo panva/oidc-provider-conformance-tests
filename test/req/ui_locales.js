@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { testUrl, login, proceed, passed, clearCookies } = require('../helpers');
 
 it('OP-Req-ui_locales', async function () {
@@ -10,5 +9,5 @@ it('OP-Req-ui_locales', async function () {
   await page.render(`${test}.png`);
   await login();
 
-  assert(await passed(test));
+  await passed(test);
 });

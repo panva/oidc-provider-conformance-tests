@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { testUrl, login, proceed, passed } = require('../helpers');
 
 it('OP-redirect_uri-MissingOK', async function () {
@@ -7,5 +6,5 @@ it('OP-redirect_uri-MissingOK', async function () {
   await proceed();
   await login();
 
-  assert(await passed(test));
+  await passed(test);
 });

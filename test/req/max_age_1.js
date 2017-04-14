@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { testUrl, login, proceed, passed } = require('../helpers');
 
 it('OP-Req-max_age=1', async function () { // investigated - test harness problem
@@ -12,5 +11,5 @@ it('OP-Req-max_age=1', async function () { // investigated - test harness proble
   await page.render(`${test}.png`);
   await login();
 
-  assert(await passed(test));
+  await passed(test);
 });

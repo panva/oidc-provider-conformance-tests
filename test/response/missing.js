@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { testUrl, proceed, passed } = require('../helpers');
 
 it('OP-Response-Missing', async function () {
@@ -6,5 +5,5 @@ it('OP-Response-Missing', async function () {
   await page.open(testUrl(test));
 
   await proceed();
-  assert(await passed(test));
+  await passed(test);
 });
