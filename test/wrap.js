@@ -10,3 +10,7 @@ before(async function () {
 after(async function () {
   await instance.exit();
 });
+
+afterEach(async function () {
+  await global.page.off('onLoadFinished');
+});
