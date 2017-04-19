@@ -1,1 +1,1 @@
-it('OP-Discovery-WebFinger-Email', require('../helpers').nointeraction); // investigated - 500 Error from new OP
+it('OP-Discovery-WebFinger-Email', require('../helpers').nointeraction);
