@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "node's oidc-provider library conformance tests",
   "scripts": {
-    "travis": "node test/travis",
     "code": "node test/code",
     "id_token": "node test/id_token",
     "id_token+token": "node test/id_token+token",
