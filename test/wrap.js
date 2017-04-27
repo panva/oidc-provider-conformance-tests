@@ -1,16 +1,26 @@
-const phantom = require('phantom');
+const CDP = require('chrome-remote-interface');
+const { clearCookies } = require('./helpers');
 
-let instance;
+let client;
 
 before(async function () {
-  instance = await phantom.create();
-  global.page = await instance.createPage();
+  client = await CDP();
+
+  const { Page, Runtime, Network } = client;
+
+  await Promise.all([
+    Page.enable(),
+    Network.enable(),
+    Runtime.enable(),
+  ]);
+
+  global.Network = Network;
+  global.Page = Page;
+  global.Runtime = Runtime;
 });
+
+before(clearCookies);
 
 after(async function () {
-  await instance.exit();
-});
-
-afterEach(async function () {
-  await global.page.off('onLoadFinished');
+  await client.close();
 });

@@ -10,6 +10,8 @@
     "prefer-arrow-callback": "off"
   },
   "globals": {
-    "page": true
+    "Page": true,
+    "Network": true,
+    "Runtime": true
   }
 }
