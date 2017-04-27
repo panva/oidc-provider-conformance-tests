@@ -35,11 +35,14 @@ async function passed(test) {
 function navigation() {
   return new Promise(async (resolve) => {
     await Page.frameStoppedLoading();
-    const { result: { value: body } } = await Runtime.evaluate({
-      expression: 'document.body.outerHTML',
-    });
 
-    if (body.includes('document.forms[0].submit()')) {
+    function getBody() {
+      return Runtime.evaluate({
+        expression: 'document.body.outerHTML',
+      }).then(({ result: { value } }) => value.includes('document.forms[0].submit()'));
+    }
+
+    while (await getBody()) {
       await Page.frameStoppedLoading();
     }
 
@@ -47,12 +50,16 @@ function navigation() {
   });
 }
 
+async function navigate(destination) {
+  await Page.navigate({ url: destination });
+  await navigation();
+}
+
 async function proceed() {
   const { result: { value: href } } = await Runtime.evaluate({
     expression: 'document.links[0].href',
   });
-  await Page.navigate({ url: href });
-  await Page.frameStoppedLoading();
+  await navigate(href);
 }
 
 async function login(loginValue = 'foo', passwordValue = 'bar') {
@@ -67,17 +74,12 @@ async function login(loginValue = 'foo', passwordValue = 'bar') {
   await navigation();
 }
 
-async function navigate(destination) {
-  await Page.navigate({ url: destination });
-  await Page.frameStoppedLoading();
-}
-
 async function clearCookies(resource = `${ISSUER}/.well-known/openid-configuration`) {
   await navigate(resource);
   const { cookies } = await Network.getCookies();
 
-  for (const cookie of cookies) { // eslint-disable-line
-    await Network.deleteCookie({ // eslint-disable-line
+  for (const cookie of cookies) {
+    await Network.deleteCookie({
       cookieName: cookie.name,
       url: resource,
     });
@@ -90,6 +92,10 @@ async function nointeraction() {
   await passed(test);
 }
 
+async function render(test) {
+  fs.writeFileSync(`${test}.png`, Buffer.from((await Page.captureScreenshot()).data, 'base64'));
+}
+
 async function captureError() {
   const test = this.test.title;
   await navigate(testUrl(test));
@@ -99,9 +105,9 @@ async function captureError() {
     expression: 'document.body.outerHTML',
   });
 
-  fs.writeFileSync(`${test}.png`, Buffer.from((await Page.captureScreenshot()).data, 'base64'));
+  await render(test);
   assert(body.includes('oops! something went wrong'), 'expected body to be an error screen');
-  console.log('received expected error screen with', // eslint-disable-line no-console
+  console.log('received expected error screen with',
     JSON.parse(body.substring(body.match(/<pre>/).index + 5, body.match(/<\/pre>/).index)));
 }
 
@@ -119,11 +125,11 @@ async function clearCaptureView() {
   await navigate(testUrl(test));
   await proceed();
 
-  fs.writeFileSync(`${test}.png`, Buffer.from((await Page.captureScreenshot()).data, 'base64'));
+  await render(test);
   const { result: { value: body } } = await Runtime.evaluate({
     expression: 'document.body.outerHTML',
   });
-  console.log('rendered view h1 says:', body.match(/<h1>(.+)<\/h1>/)[1]); // eslint-disable-line no-console
+  console.log('rendered view h1 says:', body.match(/<h1>(.+)<\/h1>/)[1]);
 
   await login();
   await passed(test);
@@ -203,4 +209,5 @@ module.exports = {
   regular,
   runSuite,
   testUrl,
+  render,
 };

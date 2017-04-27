@@ -1,5 +1,4 @@
-const { navigate, testUrl, login, proceed, passed } = require('../helpers');
-const fs = require('fs');
+const { render, navigate, testUrl, login, proceed, passed } = require('../helpers');
 
 it('OP-prompt-login', async function () {
   const test = this.test.title;
@@ -7,11 +6,11 @@ it('OP-prompt-login', async function () {
   await login();
   await proceed();
 
-  fs.writeFileSync(`${test}.png`, Buffer.from((await Page.captureScreenshot()).data, 'base64'));
+  await render(test);
   const { result: { value: body } } = await Runtime.evaluate({
     expression: 'document.body.outerHTML',
   });
-  console.log('rendered view h1 says:', body.match(/<h1>(.+)<\/h1>/)[1]); // eslint-disable-line no-console
+  console.log('rendered view h1 says:', body.match(/<h1>(.+)<\/h1>/)[1]);
 
   await login();
 
