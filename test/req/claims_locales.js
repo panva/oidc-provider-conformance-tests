@@ -1,6 +1,6 @@
 const { testUrl, navigation, login, proceed, passed } = require('../helpers');
 
-it('OP-Req-claims_locales', async function () {
+it.skip('OP-Req-claims_locales', async function () {
   const test = this.test.title;
   await page.open(testUrl(test));
   await proceed();

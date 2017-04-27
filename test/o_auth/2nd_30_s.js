@@ -1,9 +1,9 @@
-const { testUrl, login, proceed, passed } = require('../helpers');
+const { navigate, testUrl, login, proceed, passed } = require('../helpers');
 
 it('OP-OAuth-2nd-30s', async function () {
   const test = this.test.title;
 
-  await page.open(testUrl(test));
+  await navigate(testUrl(test));
   await proceed();
   await login();
 
