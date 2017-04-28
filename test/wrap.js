@@ -24,6 +24,7 @@ before(async function () {
   const { result: { value: configuration } } = await Runtime.evaluate({
     expression: 'document.body.innerText',
   });
+  console.log(process.env)
   console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
 });
 
