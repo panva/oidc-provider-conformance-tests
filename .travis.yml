@@ -5,6 +5,7 @@ addons:
   apt:
     packages:
       - google-chrome-stable
+
 before_script:
   # setup the display
   - export DISPLAY=:99.0
@@ -25,9 +26,9 @@ install:
 script:
   - npm run $RESPONSE_TYPE
 env:
-  # - RESPONSE_TYPE=code
+  - RESPONSE_TYPE=code
   - RESPONSE_TYPE=id_token
-  # - RESPONSE_TYPE=id_token+token
-  # - RESPONSE_TYPE=code+id_token
-  # - RESPONSE_TYPE=code+id_token+token
-  # - RESPONSE_TYPE=code+token
+  - RESPONSE_TYPE=id_token+token
+  - RESPONSE_TYPE=code+id_token
+  - RESPONSE_TYPE=code+id_token+token
+  - RESPONSE_TYPE=code+token
