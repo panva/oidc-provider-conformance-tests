@@ -93,9 +93,7 @@ async function nointeraction() {
 }
 
 async function render(test) {
-  if (!process.env.TRAVIS_JOB_ID) {
-    fs.writeFileSync(`${test}.png`, Buffer.from((await Page.captureScreenshot()).data, 'base64'));
-  }
+  fs.writeFileSync(`${test}.png`, Buffer.from((await Page.captureScreenshot()).data, 'base64'));
 }
 
 async function captureError() {
