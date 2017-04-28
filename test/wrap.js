@@ -19,7 +19,13 @@ before(async function () {
   global.Runtime = Runtime;
 });
 
-before(clearCookies);
+before(async function () {
+  await clearCookies();
+  const { result: { value: configuration } } = await Runtime.evaluate({
+    expression: 'document.body.innerText',
+  });
+  console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
+});
 
 after(async function () {
   await client.close();
