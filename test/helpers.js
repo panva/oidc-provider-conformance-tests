@@ -158,7 +158,6 @@ async function configure(type) {
   };
 
   await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${TAG}`, {
-    protocol: 'http',
     port: 60000,
   }), { body });
 }
