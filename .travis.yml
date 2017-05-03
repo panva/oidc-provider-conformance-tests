@@ -10,7 +10,12 @@ before_script:
   # start a fresh new Chrome instance
   - google-chrome-beta
         --user-data-dir=$(mktemp -d)
-        --no-sandbox --no-first-run --headless --disable-extensions --remote-debugging-port=9222
+        --no-sandbox
+        --no-first-run
+        --headless
+        --disable-extensions
+        --disable-gpu
+        --remote-debugging-port=9222
         about:blank &
 
   # wait for Chrome to start up
