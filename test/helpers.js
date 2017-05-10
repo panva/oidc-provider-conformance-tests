@@ -5,6 +5,7 @@ const got = require('got');
 const fs = require('fs');
 const assert = require('assert');
 
+const cwd = process.cwd();
 const {
   ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
   TEST_PORT = 60011,
@@ -174,7 +175,7 @@ async function runSuite(profile) {
   await configure(responseType);
 
   const { body } = await got.get(testUrl());
-  const mocha = path.join(process.cwd(), 'node_modules', '.bin', '_mocha');
+  const mocha = path.join(cwd, 'node_modules', '.bin', '_mocha');
   const args = [mocha];
   args.push('--async-only');
   args.push('--timeout');
@@ -185,7 +186,13 @@ async function runSuite(profile) {
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
     const name = test.slice(4, -1);
     const [folder, ...file] = name.split('-');
-    args.push(`test/${_.snakeCase(folder)}/${_.snakeCase(file)}.js`);
+    const fileLocation = `test/${_.snakeCase(folder)}/${_.snakeCase(file)}.js`;
+
+    if (!fs.existsSync(fileLocation)) {
+      throw new Error(`expecting a test definition in ${cwd}/${fileLocation}`);
+    }
+
+    args.push(fileLocation);
   });
 
   args.unshift(process.argv[0]);
