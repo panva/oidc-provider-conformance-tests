@@ -183,6 +183,9 @@ async function runSuite(profile) {
 
   args.push('test/wrap.js');
 
+  body.match(/<h2>(.*)<\/h2>/);
+  console.log(RegExp.$1);
+
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
     const name = test.slice(4, -1);
     const [folder, ...file] = name.split('-');
