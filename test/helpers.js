@@ -25,9 +25,9 @@ async function passed(test) {
 
   assert.equal(pathname, '/display', 'Expected to be on a result screen');
 
-  const selector = `a[href="${testUrl(test)}"] > img`;
+  const selector = `a[href="${testUrl(test)}"] > button`;
   const { result: { value: status } } = await Runtime.evaluate({
-    expression: `document.querySelector('${selector}').alt`,
+    expression: `document.querySelector('${selector}').title`,
   });
 
   assert.equal(status, 'Green', `Expected status to be Green, got ${status}`);
@@ -183,8 +183,8 @@ async function runSuite(profile) {
 
   args.push('test/wrap.js');
 
-  body.match(/<h2>(.*)<\/h2>/);
-  console.log(RegExp.$1);
+  body.match(/<li>Version: (.*)<\/li>/);
+  console.log('Test Suite Version: ', RegExp.$1);
 
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
     const name = test.slice(4, -1);
