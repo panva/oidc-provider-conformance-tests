@@ -1,12 +1,30 @@
 language: node_js
 dist: trusty
 sudo: false
+addons:
+  apt:
+    packages:
+      - google-chrome-beta
+
+before_script:
+  # start a fresh new Chrome instance
+  - google-chrome-beta
+        --user-data-dir=$(mktemp -d)
+        --no-sandbox
+        --no-first-run
+        --headless
+        --disable-extensions
+        --disable-gpu
+        --remote-debugging-port=9222
+        about:blank &
+
+  # wait for Chrome to start up
+  - while ! curl http://localhost:9222 >/dev/null; do sleep 1; done
+
 install:
   - npm install --production
 script:
-  - npm run travis
-node_js:
-  - stable
+  - npm run $RESPONSE_TYPE
 env:
   - RESPONSE_TYPE=code
   - RESPONSE_TYPE=id_token

@@ -1,22 +1,32 @@
-const phantom = require('phantom');
-const { restart } = require('./helpers');
+const CDP = require('chrome-remote-interface');
+const { clearCookies } = require('./helpers');
 
-let instance;
+let client;
 
 before(async function () {
-  instance = await phantom.create();
-  global.page = await instance.createPage();
+  client = await CDP();
+
+  const { Page, Runtime, Network } = client;
+
+  await Promise.all([
+    Page.enable(),
+    Network.enable(),
+    Runtime.enable(),
+  ]);
+
+  global.Network = Network;
+  global.Page = Page;
+  global.Runtime = Runtime;
+});
+
+before(async function () {
+  await clearCookies();
+  const { result: { value: configuration } } = await Runtime.evaluate({
+    expression: 'document.body.innerText',
+  });
+  console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
 });
 
 after(async function () {
-  await instance.exit();
-});
-
-let i = 0;
-
-beforeEach(async function () {
-  i++; // eslint-disable-line
-  if (i < 15) return;
-  i = 0;
-  await restart();
+  await client.close();
 });

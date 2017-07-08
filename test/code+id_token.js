@@ -1,6 +1,6 @@
 const { runSuite } = require('./helpers');
 
 runSuite('CI').catch((err) => {
-  console.error(err); // eslint-disable-line
+  console.error(err);
   process.exit(1);
 });

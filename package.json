@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "node's oidc-provider library conformance tests",
   "scripts": {
-    "travis": "node test/travis",
     "code": "node test/code",
     "id_token": "node test/id_token",
     "id_token+token": "node test/id_token+token",
@@ -19,10 +18,10 @@
   "author": "Filip Skokan",
   "license": "MIT",
   "dependencies": {
+    "chrome-remote-interface": "^0.21.0",
     "got": "^6.7.1",
     "lodash": "^4.17.4",
-    "mocha": "^3.2.0",
-    "phantom": "^4.0.2"
+    "mocha": "^3.2.0"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
