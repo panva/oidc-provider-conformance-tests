@@ -9,7 +9,7 @@ const cwd = process.cwd();
 const {
   ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
   TEST_PORT = 60011,
-  TEST_HOSTNAME = 'new-op.certification.openid.net',
+  TEST_HOSTNAME = 'op.certification.openid.net',
   TEST_PROTOCOL = 'https',
   TAG = 'guarded-cliffs',
 } = process.env;
