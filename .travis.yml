@@ -4,11 +4,11 @@ sudo: false
 addons:
   apt:
     packages:
-      - google-chrome-beta
+      - google-chrome
 
 before_script:
   # start a fresh new Chrome instance
-  - google-chrome-beta
+  - google-chrome
         --user-data-dir=$(mktemp -d)
         --no-sandbox
         --no-first-run
