@@ -4,11 +4,11 @@ sudo: false
 addons:
   apt:
     packages:
-      - google-chrome
+      - google-chrome-stable
 
 before_script:
   # start a fresh new Chrome instance
-  - google-chrome
+  - google-chrome-stable
         --user-data-dir=$(mktemp -d)
         --no-sandbox
         --no-first-run
