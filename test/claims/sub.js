@@ -1,4 +1,6 @@
-const { navigate, testUrl, login, passed, clearCookies } = require('../helpers');
+const {
+  navigate, testUrl, login, passed, clearCookies,
+} = require('../helpers');
 
 it('OP-claims-sub', async function () {
   const test = this.test.title;

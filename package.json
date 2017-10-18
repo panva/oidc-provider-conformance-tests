@@ -8,7 +8,9 @@
     "id_token+token": "node test/id_token+token",
     "code+id_token": "node test/code+id_token",
     "code+id_token+token": "node test/code+id_token+token",
-    "code+token": "node test/code+token"
+    "code+token": "node test/code+token",
+    "lint": "eslint test",
+    "lint-fix": "eslint test --fix"
   },
   "repository": "panva/oidc-provider-conformance-tests",
   "engines": {

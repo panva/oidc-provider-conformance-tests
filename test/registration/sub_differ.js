@@ -1,4 +1,6 @@
-const { navigate, testUrl, login, passed } = require('../helpers');
+const {
+  navigate, testUrl, login, passed,
+} = require('../helpers');
 
 it('OP-Registration-Sub-Differ', async function () {
   const test = this.test.title;

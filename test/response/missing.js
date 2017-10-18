@@ -1,4 +1,6 @@
-const { navigate, testUrl, proceed, passed } = require('../helpers');
+const {
+  navigate, testUrl, proceed, passed,
+} = require('../helpers');
 
 it('OP-Response-Missing', async function () {
   const test = this.test.title;

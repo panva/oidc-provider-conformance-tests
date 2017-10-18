@@ -1,4 +1,6 @@
-const { render, navigate, testUrl, login, proceed, passed, clearCookies } = require('../helpers');
+const {
+  render, navigate, testUrl, login, proceed, passed, clearCookies,
+} = require('../helpers');
 
 it('OP-Req-ui_locales', async function () {
   const test = this.test.title;

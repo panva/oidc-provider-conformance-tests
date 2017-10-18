@@ -1,4 +1,6 @@
-const { navigate, testUrl, proceed, passed } = require('../helpers');
+const {
+  navigate, testUrl, proceed, passed,
+} = require('../helpers');
 
 it('OP-nonce-NoReq-noncode', async function () {
   const test = this.test.title;

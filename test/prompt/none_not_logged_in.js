@@ -1,4 +1,6 @@
-const { navigate, testUrl, proceed, passed, clearCookies } = require('../helpers');
+const {
+  navigate, testUrl, proceed, passed, clearCookies,
+} = require('../helpers');
 
 it('OP-prompt-none-NotLoggedIn', async function () {
   const test = this.test.title;
