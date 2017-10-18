@@ -24,7 +24,11 @@ before(async function () {
   const { result: { value: configuration } } = await Runtime.evaluate({
     expression: 'document.body.innerText',
   });
-  console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
+  try {
+    console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
+  } catch (err) {
+    console.error('failed to parse openid-configuration, received', configuration);
+  }
 });
 
 after(async function () {
