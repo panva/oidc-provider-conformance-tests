@@ -1,10 +1,6 @@
 language: node_js
 dist: trusty
 sudo: false
-addons:
-  apt:
-    packages:
-      - google-chrome-stable
 
 before_script:
   # start a fresh new Chrome instance
