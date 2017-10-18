@@ -1,22 +1,6 @@
 language: node_js
 dist: trusty
 sudo: false
-
-before_script:
-  # start a fresh new Chrome instance
-  - google-chrome-stable
-        --user-data-dir=$(mktemp -d)
-        --no-sandbox
-        --no-first-run
-        --headless
-        --disable-extensions
-        --disable-gpu
-        --remote-debugging-port=9222
-        about:blank &
-
-  # wait for Chrome to start up
-  - while ! curl http://localhost:9222 >/dev/null; do sleep 1; done
-
 install:
   - npm install --production
 script:

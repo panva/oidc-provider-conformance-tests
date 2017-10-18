@@ -1,36 +1,19 @@
-const CDP = require('chrome-remote-interface');
+const puppeteer = require('puppeteer');
 const { clearCookies } = require('./helpers');
 
-let client;
+let browser;
 
 before(async function () {
-  client = await CDP();
-
-  const { Page, Runtime, Network } = client;
-
-  await Promise.all([
-    Page.enable(),
-    Network.enable(),
-    Runtime.enable(),
-  ]);
-
-  global.Network = Network;
-  global.Page = Page;
-  global.Runtime = Runtime;
+  browser = await puppeteer.launch();
+  global.tab = await browser.newPage();
 });
 
 before(async function () {
   await clearCookies();
-  const { result: { value: configuration } } = await Runtime.evaluate({
-    expression: 'document.body.innerText',
-  });
-  try {
-    console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
-  } catch (err) {
-    console.error('failed to parse openid-configuration, received', configuration);
-  }
+  const configuration = await tab.evaluate(() => document.body.innerText);
+  console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
 });
 
 after(async function () {
-  await client.close();
+  await browser.close();
 });

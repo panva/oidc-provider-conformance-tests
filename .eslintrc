@@ -13,8 +13,6 @@
     "prefer-arrow-callback": "off"
   },
   "globals": {
-    "Page": true,
-    "Network": true,
-    "Runtime": true
+    "tab": true
   }
 }

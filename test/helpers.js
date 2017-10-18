@@ -1,5 +1,5 @@
 const url = require('url');
-const _ = require('lodash');
+const { snakeCase } = require('lodash');
 const got = require('got');
 const fs = require('fs');
 const assert = require('assert');
@@ -26,80 +26,50 @@ function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostnam
 }
 
 async function passed(test) {
-  const { result: { value: pathname } } = await Runtime.evaluate({
-    expression: 'window.location.pathname',
-  });
+  const pathname = await tab.evaluate(() => window.location.pathname);
 
   assert.equal(pathname, '/display', 'Expected to be on a result screen');
 
   const selector = `a[href="${testUrl(test)}"] > button`;
-  const { result: { value: status } } = await Runtime.evaluate({
-    expression: `document.querySelector('${selector}').title`,
-  });
+  const status = await tab.evaluate(Function(`return document.querySelector('${selector}').title`));
 
-  if (status === undefined) {
-    await passed(test);
-  } else {
-    assert.equal(status, 'Green', `Expected status to be Green, got ${status}`);
-  }
+  assert.equal(status, 'Green', `Expected status to be Green, got ${status}`);
 }
 
-function navigation() {
-  return new Promise(async (resolve) => {
-    const { result: { value: ready } } = await Runtime.evaluate({
-      expression: 'document.readyState',
-    });
-
-    if (ready !== 'complete') {
-      await Page.frameStoppedLoading();
-    }
-
-    function getBody() {
-      return Runtime.evaluate({
-        expression: 'document.body.outerHTML',
-      }).then(({ result: { value } }) => value.includes('document.forms[0].submit()'));
-    }
-
-    while (await getBody()) {
-      await Page.frameStoppedLoading();
-    }
-
-    resolve();
+async function navigation() {
+  await tab.waitForNavigation({
+    timeout: 0,
+    waitUntil: 'networkidle',
   });
 }
 
 async function navigate(destination) {
-  await Page.navigate({ url: destination });
-  await navigation();
+  await tab.goto(destination, {
+    timeout: 0,
+    waitUntil: 'networkidle',
+  });
 }
 
 async function proceed() {
-  const { result: { value: href } } = await Runtime.evaluate({
-    expression: 'document.links[0].href',
-  });
+  const href = await tab.evaluate(() => document.links[0].href);
   await navigate(href);
 }
 
 async function login(loginValue = 'foo', passwordValue = 'bar') {
-  const fn = Function(`
-    if (!document.forms[0]) return false;
-    if (document.forms[0].login) document.forms[0].login.value = '${loginValue}';
-    if (document.forms[0].password) document.forms[0].password.value = '${passwordValue}';
-    document.forms[0].submit();
-  `);
-
-  await Runtime.evaluate({ expression: `(${fn.toString()})();` });
+  if (await tab.$('input[name=login]')) {
+    await tab.type('input[name=login]', loginValue);
+    await tab.type('input[name=password]', passwordValue);
+  }
+  await tab.click('button[type=submit]');
   await navigation();
 }
 
 async function clearCookies(resource = `${ISSUER}/.well-known/openid-configuration`) {
   await navigate(resource);
-  const { cookies } = await Network.getCookies();
 
-  for (const cookie of cookies) {
-    await Network.deleteCookies({
+  for (const cookie of await tab.cookies()) {
+    await tab.deleteCookie({
       name: cookie.name,
-      url: resource,
     });
   }
 }
@@ -111,7 +81,10 @@ async function nointeraction() {
 }
 
 async function render(test) {
-  fs.writeFileSync(`${test}.png`, Buffer.from((await Page.captureScreenshot()).data, 'base64'));
+  await tab.screenshot({
+    path: `${test}.png`,
+    fullPage: true,
+  });
 }
 
 async function captureError() {
@@ -119,9 +92,7 @@ async function captureError() {
   await navigate(testUrl(test));
   await proceed();
 
-  const { result: { value: body } } = await Runtime.evaluate({
-    expression: 'document.body.outerHTML',
-  });
+  const body = await tab.evaluate(() => document.body.outerHTML);
 
   await render(test);
   assert(body.includes('oops! something went wrong'), 'expected body to be an error screen');
@@ -146,9 +117,7 @@ async function clearCaptureView() {
   await proceed();
 
   await render(test);
-  const { result: { value: body } } = await Runtime.evaluate({
-    expression: 'document.body.outerHTML',
-  });
+  const body = await tab.evaluate(() => document.body.outerHTML);
   console.log('rendered view h1 says:', body.match(/<h1>(.+)<\/h1>/)[1]);
 
   await login();
@@ -206,7 +175,7 @@ async function runSuite(profile) {
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
     const name = test.slice(4, -1);
     const [folder, ...file] = name.split('-');
-    const fileLocation = `test/${_.snakeCase(folder)}/${_.snakeCase(file)}.js`;
+    const fileLocation = `test/${snakeCase(folder)}/${snakeCase(file)}.js`;
 
     if (!fs.existsSync(fileLocation)) {
       throw new Error(`expecting a test definition in ${cwd}/${fileLocation}`);

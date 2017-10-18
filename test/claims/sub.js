@@ -7,9 +7,7 @@ it('OP-claims-sub', async function () {
   await navigate(testUrl(test));
   await login();
 
-  const { result: { value: after } } = await Runtime.evaluate({
-    expression: 'document.links[0].href',
-  });
+  const after = await tab.evaluate(() => document.links[0].href);
 
   if (!after) throw new Error('expected continue link to be present');
 
