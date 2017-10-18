@@ -1,9 +1,11 @@
-const path = require('path');
 const url = require('url');
 const _ = require('lodash');
 const got = require('got');
 const fs = require('fs');
 const assert = require('assert');
+const Mocha = require('mocha');
+
+const mocha = new Mocha();
 
 const cwd = process.cwd();
 const {
@@ -15,7 +17,12 @@ const {
 } = process.env;
 
 function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostname = TEST_HOSTNAME } = {}) { // eslint-disable-line
-  return url.format({ protocol, port, hostname, pathname });
+  return url.format({
+    protocol,
+    port,
+    hostname,
+    pathname,
+  });
 }
 
 async function passed(test) {
@@ -30,12 +37,22 @@ async function passed(test) {
     expression: `document.querySelector('${selector}').title`,
   });
 
-  assert.equal(status, 'Green', `Expected status to be Green, got ${status}`);
+  if (status === undefined) {
+    await passed(test);
+  } else {
+    assert.equal(status, 'Green', `Expected status to be Green, got ${status}`);
+  }
 }
 
 function navigation() {
   return new Promise(async (resolve) => {
-    await Page.frameStoppedLoading();
+    const { result: { value: ready } } = await Runtime.evaluate({
+      expression: 'document.readyState',
+    });
+
+    if (ready !== 'complete') {
+      await Page.frameStoppedLoading();
+    }
 
     function getBody() {
       return Runtime.evaluate({
@@ -80,8 +97,8 @@ async function clearCookies(resource = `${ISSUER}/.well-known/openid-configurati
   const { cookies } = await Network.getCookies();
 
   for (const cookie of cookies) {
-    await Network.deleteCookie({
-      cookieName: cookie.name,
+    await Network.deleteCookies({
+      name: cookie.name,
       url: resource,
     });
   }
@@ -108,8 +125,10 @@ async function captureError() {
 
   await render(test);
   assert(body.includes('oops! something went wrong'), 'expected body to be an error screen');
-  console.log('received expected error screen with',
-    JSON.parse(body.substring(body.match(/<pre>/).index + 5, body.match(/<\/pre>/).index)));
+  console.log(
+    'received expected error screen with',
+    JSON.parse(body.substring(body.match(/<pre>/).index + 5, body.match(/<\/pre>/).index)),
+  );
 }
 
 async function regular() {
@@ -160,7 +179,7 @@ async function configure(type) {
 
   await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${TAG}`, {
     port: 60000,
-  }), { body });
+  }), { body, form: true });
 }
 
 async function runSuite(profile) {
@@ -175,13 +194,11 @@ async function runSuite(profile) {
   await configure(responseType);
 
   const { body } = await got.get(testUrl());
-  const mocha = path.join(cwd, 'node_modules', '.bin', '_mocha');
-  const args = [mocha];
-  args.push('--async-only');
-  args.push('--timeout');
-  args.push('60000');
 
-  args.push('test/wrap.js');
+  mocha.asyncOnly();
+  mocha.suite.timeout(60000);
+
+  const files = ['test/wrap.js'];
 
   body.match(/<li>Version: (.*)<\/li>/);
   console.log('Test Suite Version: ', RegExp.$1);
@@ -195,14 +212,12 @@ async function runSuite(profile) {
       throw new Error(`expecting a test definition in ${cwd}/${fileLocation}`);
     }
 
-    args.push(fileLocation);
+    files.push(fileLocation);
   });
 
-  args.unshift(process.argv[0]);
+  mocha.files = files;
 
-  process.argv = args;
-
-  require(mocha); //eslint-disable-line
+  mocha.run(process.exit);
 }
 
 module.exports = {
