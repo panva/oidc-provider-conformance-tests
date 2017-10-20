@@ -10,11 +10,10 @@ const mocha = new Mocha();
 const cwd = process.cwd();
 const {
   ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
-  TEST_PORT = 60011,
   TEST_HOSTNAME = 'op.certification.openid.net',
   TEST_PROTOCOL = 'https',
-  TAG = 'guarded-cliffs',
 } = process.env;
+let TEST_PORT;
 
 function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostname = TEST_HOSTNAME } = {}) { // eslint-disable-line
   return url.format({
@@ -26,7 +25,8 @@ function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostnam
 }
 
 async function passed(test) {
-  assert((await tab.url().endsWith('/display')), 'Expected to be on a result screen');
+  const currentUrl = await tab.url();
+  assert(currentUrl.endsWith('/display'), `Expected to be on a result screen, got ${currentUrl} instead`);
 
   const selector = `a[href="${testUrl(test)}"] > button`;
   const status = await tab.evaluate(Function(`return document.querySelector('${selector}').title`));
@@ -122,14 +122,27 @@ async function clearCaptureView() {
   await passed(test);
 }
 
-async function configure(type) {
+async function configure(profile) {
+  const tag = profile;
   const body = {
     'tool:issuer': ISSUER,
-    'tool:tag': TAG,
+    'tool:tag': tag,
     'tool:register': 'True',
     'tool:discover': 'True',
     'tool:webfinger': 'True',
-    'tool:return_type': type,
+    'tool:return_type': profile.split('').map((letter) => {
+      switch (letter) {
+        case 'C':
+          return 'code';
+        case 'I':
+          return 'id_token';
+        case 'T':
+          return 'token';
+        default: {
+          throw new Error('invalid profile');
+        }
+      }
+    }).join(' '),
     'tool:webfinger_email': `acct:foobar@${url.parse(ISSUER).hostname}`,
     'tool:webfinger_url': `${ISSUER}/foobar`,
     'tool:acr_values': 'session urn:mace:incommon:iap:bronze',
@@ -144,21 +157,17 @@ async function configure(type) {
     'tool:ui_locales': '',
   };
 
-  await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${TAG}`, {
+  const { body: runCmdBody } = await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${tag}`, {
     port: 60000,
   }), { body, form: true });
+
+
+  runCmdBody.match(/a href=".+:(\d+)"/);
+  TEST_PORT = parseInt(RegExp.$1, 10);
 }
 
 async function runSuite(profile) {
-  const responseType = profile.split('').map((letter) => { // eslint-disable-line
-    switch (letter) { // eslint-disable-line
-      case 'C': return 'code';
-      case 'I': return 'id_token';
-      case 'T': return 'token';
-    }
-  }).join(' ');
-
-  await configure(responseType);
+  await configure(profile);
 
   const { body } = await got.get(testUrl());
 
