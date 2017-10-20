@@ -8,12 +8,12 @@ const Mocha = require('mocha');
 const mocha = new Mocha();
 
 const cwd = process.cwd();
+let TEST_PORT;
 const {
   ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
   TEST_HOSTNAME = 'op.certification.openid.net',
   TEST_PROTOCOL = 'https',
 } = process.env;
-let TEST_PORT;
 
 function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostname = TEST_HOSTNAME } = {}) { // eslint-disable-line
   return url.format({
@@ -39,6 +39,13 @@ async function navigation() {
     timeout: 0,
     waitUntil: 'networkidle',
   });
+
+  if ((await tab.url()).endsWith('/authz_cb')) {
+    await tab.waitForNavigation({
+      timeout: 0,
+      waitUntil: 'networkidle',
+    });
+  }
 }
 
 async function navigate(destination) {
@@ -157,12 +164,11 @@ async function configure(profile) {
     'tool:ui_locales': '',
   };
 
-  const { body: runCmdBody } = await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${tag}`, {
+  const { body: responseBody } = await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${tag}`, {
     port: 60000,
   }), { body, form: true });
 
-
-  runCmdBody.match(/a href=".+:(\d+)"/);
+  responseBody.match(/a href=".+:(\d+)"/);
   TEST_PORT = parseInt(RegExp.$1, 10);
 }
 
