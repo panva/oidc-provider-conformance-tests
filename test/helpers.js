@@ -26,9 +26,7 @@ function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostnam
 }
 
 async function passed(test) {
-  const pathname = await tab.evaluate(() => window.location.pathname);
-
-  assert.equal(pathname, '/display', 'Expected to be on a result screen');
+  assert((await tab.url().endsWith('/display')), 'Expected to be on a result screen');
 
   const selector = `a[href="${testUrl(test)}"] > button`;
   const status = await tab.evaluate(Function(`return document.querySelector('${selector}').title`));
