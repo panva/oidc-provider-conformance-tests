@@ -14,7 +14,7 @@
   },
   "repository": "panva/oidc-provider-conformance-tests",
   "engines": {
-    "node": ">=7.6.0"
+    "node": ">=8.0.0
   },
   "homepage": "https://github.com/panva/oidc-provider-conformance-tests",
   "author": "Filip Skokan",
