@@ -3,8 +3,12 @@ const { clearCookies } = require('./helpers');
 
 let browser;
 
+const TRAVIS = 'TRAVIS' in process.env && 'CI' in process.env;
+
 before(async function () {
-  browser = await puppeteer.launch();
+  browser = await puppeteer.launch(TRAVIS ? {
+    args: ['--no-sandbox'],
+  } : undefined);
   global.tab = await browser.newPage();
 });
 
