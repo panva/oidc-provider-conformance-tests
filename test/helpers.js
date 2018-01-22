@@ -156,6 +156,7 @@ async function configure(profile) {
     'tool:claims_locales': '',
     'tool:enc': 'True',
     'tool:extra': 'True',
+    'tool:form_post': 'True',
     'tool:insecure': 'False',
     'tool:login_hint': 'bob@example.com',
     'tool:none': 'True',
