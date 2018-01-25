@@ -3,6 +3,7 @@ const { snakeCase } = require('lodash');
 const got = require('got');
 const fs = require('fs');
 const assert = require('assert');
+const timekeeper = require('timekeeper');
 const Mocha = require('mocha');
 
 const mocha = new Mocha();
@@ -176,7 +177,9 @@ async function configure(profile) {
 async function runSuite(profile) {
   await configure(profile);
 
-  const { body } = await got.get(testUrl());
+  const { body, headers: { date } } = await got.get(testUrl());
+
+  timekeeper.travel(new Date(date));
 
   mocha.asyncOnly();
   mocha.suite.timeout(60000);
