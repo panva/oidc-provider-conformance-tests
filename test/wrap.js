@@ -17,7 +17,3 @@ before(async function () {
   const configuration = await tab.evaluate(() => document.body.innerText);
   console.log('OP .well-known/openid-configuration', JSON.parse(configuration, null, 4));
 });
-
-after(async function () {
-  await browser.close();
-});
