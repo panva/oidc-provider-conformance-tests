@@ -116,6 +116,11 @@ async function regular() {
   await passed(test);
 }
 
+async function cleanRegular() {
+  await clearCookies();
+  await regular.call(this)
+}
+
 async function clearCaptureView() {
   const test = this.test.title;
   await clearCookies();
@@ -153,7 +158,7 @@ async function configure(profile) {
     }).join(' '),
     'tool:webfinger_email': `acct:foobar@${url.parse(ISSUER).hostname}`,
     'tool:webfinger_url': `${ISSUER}/foobar`,
-    'tool:acr_values': 'session urn:mace:incommon:iap:bronze',
+    'tool:acr_values': 'urn:mace:incommon:iap:bronze',
     'tool:claims_locales': '',
     'tool:enc': 'True',
     'tool:extra': 'True',
@@ -217,6 +222,7 @@ module.exports = {
   passed,
   proceed,
   regular,
+  cleanRegular,
   runSuite,
   testUrl,
   render,
