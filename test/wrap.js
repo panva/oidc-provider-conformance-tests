@@ -7,8 +7,9 @@ const TRAVIS = 'TRAVIS' in process.env && 'CI' in process.env;
 
 before(async function () {
   browser = await puppeteer.launch(TRAVIS ? {
+    ignoreHTTPSErrors: true,
     args: ['--no-sandbox'],
-  } : undefined);
+  } : {ignoreHTTPSErrors: true});
   global.tab = await browser.newPage();
 });
 
