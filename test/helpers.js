@@ -102,10 +102,6 @@ async function captureError() {
 
   await render(test);
   assert(body.includes('oops! something went wrong'), 'expected body to be an error screen');
-  console.log(
-    'received expected error screen with',
-    JSON.parse(body.substring(body.match(/<pre>/).index + 5, body.match(/<\/pre>/).index)),
-  );
 }
 
 async function regular() {
@@ -118,7 +114,7 @@ async function regular() {
 
 async function cleanRegular() {
   await clearCookies();
-  await regular.call(this)
+  await regular.call(this);
 }
 
 async function clearCaptureView() {
@@ -128,9 +124,6 @@ async function clearCaptureView() {
   await proceed();
 
   await render(test);
-  const body = await tab.evaluate(() => document.body.outerHTML);
-  console.log('rendered view h1 says:', body.match(/<h1>(.+)<\/h1>/)[1]);
-
   await login();
   await passed(test);
 }

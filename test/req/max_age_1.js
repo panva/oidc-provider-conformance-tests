@@ -11,9 +11,6 @@ it('OP-Req-max_age=1', async function () { // investigated - test harness proble
 
   await proceed();
   await render(test);
-  const body = await tab.evaluate(() => document.body.outerHTML);
-  console.log('rendered view h1 says:', body.match(/<h1>(.+)<\/h1>/)[1]);
   await login();
-
   await passed(test);
 });
