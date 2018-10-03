@@ -39,3 +39,6 @@ npm-shrinkwrap.json
 
 all.sh
 *.png
+/.settings/
+/.project
+/package-lock.json
