@@ -87,10 +87,12 @@ async function nointeraction() {
 }
 
 async function render(test) {
-  await tab.screenshot({
-    path: `${test}.png`,
-    fullPage: true,
-  });
+  if (!process.env.CI) {
+    await tab.screenshot({
+      path: `${test}.png`,
+      fullPage: true,
+    });
+  }
 }
 
 async function captureError() {
