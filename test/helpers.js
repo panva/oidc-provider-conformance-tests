@@ -137,7 +137,7 @@ async function configure(profile) {
     'tool:tag': tag,
     'tool:register': 'True',
     'tool:discover': 'True',
-    'tool:webfinger': 'True',
+    'tool:webfinger': 'False',
     'tool:return_type': profile.split('').map((letter) => {
       switch (letter) {
         case 'C':
@@ -151,8 +151,8 @@ async function configure(profile) {
         }
       }
     }).join(' '),
-    'tool:webfinger_email': `acct:foobar@${url.parse(ISSUER).hostname}`,
-    'tool:webfinger_url': `${ISSUER}/foobar`,
+    'tool:webfinger_email': '',
+    'tool:webfinger_url': '',
     'tool:acr_values': 'urn:mace:incommon:iap:bronze',
     'tool:claims_locales': '',
     'tool:enc': 'True',
