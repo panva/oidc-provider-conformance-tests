@@ -1,1 +1,1 @@
-it('OP-display-page', require('../helpers').clearCaptureView);
+it('OP-display-page', require('../helpers').loginCaptureView);

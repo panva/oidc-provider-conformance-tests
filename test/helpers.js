@@ -8,7 +8,6 @@ const Mocha = require('mocha');
 
 const mocha = new Mocha();
 
-const cwd = process.cwd();
 let TEST_PORT;
 const {
   ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
@@ -61,13 +60,18 @@ async function proceed() {
   await navigate(href);
 }
 
-async function login(loginValue = 'foo', passwordValue = 'bar') {
+async function login(fullflow = true) {
   if (await tab.$('input[name=login]')) {
-    await tab.type('input[name=login]', loginValue);
-    await tab.type('input[name=password]', passwordValue);
+    await tab.type('input[name=login]', 'foo');
+    await tab.type('input[name=password]', 'bar');
   }
   await tab.click('button[type=submit]');
   await navigation();
+
+  if (await tab.$('button[type=submit]') && fullflow) {
+    await tab.click('button[type=submit]');
+    await navigation();
+  }
 }
 
 async function clearCookies(resource = `${ISSUER}/.well-known/openid-configuration`) {
@@ -114,17 +118,24 @@ async function regular() {
   await passed(test);
 }
 
-async function cleanRegular() {
-  await clearCookies();
-  await regular.call(this);
-}
-
-async function clearCaptureView() {
+async function loginCaptureView() {
   const test = this.test.title;
   await clearCookies();
   await navigate(testUrl(test));
   await proceed();
 
+  await render(test);
+  await login();
+  await passed(test);
+}
+
+async function consentCaptureView() {
+  const test = this.test.title;
+  await clearCookies();
+  await navigate(testUrl(test));
+  await proceed();
+
+  await login(false);
   await render(test);
   await login();
   await passed(test);
@@ -189,6 +200,7 @@ async function runSuite(profile) {
 
   body.match(/<li>Version: (.*)<\/li>/);
   console.log('Test Suite Version: ', RegExp.$1);
+  const missing = [];
 
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
     const name = test.slice(4, -1);
@@ -196,11 +208,18 @@ async function runSuite(profile) {
     const fileLocation = `test/${snakeCase(folder)}/${snakeCase(file)}.js`;
 
     if (!fs.existsSync(fileLocation)) {
-      throw new Error(`expecting a test definition in ${cwd}/${fileLocation}`);
+      missing.push(name);
+      return;
     }
 
+    if (profile === 'CT' && snakeCase(file) === 'no_req_noncode') {
+      return;
+    }
     files.push(fileLocation);
   });
+
+  console.error('missing test definition files');
+  console.error(missing);
 
   mocha.files = files;
 
@@ -208,18 +227,18 @@ async function runSuite(profile) {
 }
 
 module.exports = {
-  navigate,
   captureError,
-  clearCaptureView,
   clearCookies,
+  consentCaptureView,
   login,
+  loginCaptureView,
+  navigate,
   navigation,
   nointeraction,
   passed,
   proceed,
   regular,
-  cleanRegular,
+  render,
   runSuite,
   testUrl,
-  render,
 };

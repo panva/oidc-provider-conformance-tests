@@ -1,1 +1,1 @@
-it('OP-Req-login_hint', require('../helpers').clearCaptureView);
+it('OP-Req-login_hint', require('../helpers').loginCaptureView);

@@ -1,1 +1,1 @@
-it('OP-Req-acr_values', require('../helpers').cleanRegular);
+it('OP-Req-acr_values', require('../helpers').regular);

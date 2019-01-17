@@ -1,1 +1,1 @@
-it('OP-Registration-policy_uri', require('../helpers').clearCaptureView);
+it('OP-Registration-policy_uri', require('../helpers').loginCaptureView);

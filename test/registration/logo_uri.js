@@ -1,1 +1,1 @@
-it('OP-Registration-logo_uri', require('../helpers').clearCaptureView);
+it('OP-Registration-logo_uri', require('../helpers').consentCaptureView);

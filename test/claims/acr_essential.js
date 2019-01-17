@@ -1,1 +1,1 @@
-it('OP-claims-acr-essential', require('../helpers').cleanRegular);
+it('OP-claims-acr-essential', require('../helpers').regular);

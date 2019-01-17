@@ -1,1 +1,1 @@
-it('OP-display-popup', require('../helpers').clearCaptureView);
+it('OP-display-popup', require('../helpers').loginCaptureView);
