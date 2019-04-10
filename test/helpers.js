@@ -25,33 +25,20 @@ function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostnam
 }
 
 async function passed(test) {
-  const currentUrl = await tab.url();
-  assert(currentUrl.endsWith('/display'), `Expected to be on a result screen, got ${currentUrl} instead`);
-
-  const selector = `a[href="${testUrl(test)}"] > button`;
-  const status = await tab.evaluate(Function(`return document.querySelector('${selector}').title`));
-
-  assert.equal(status, 'Green', `Expected status to be Green, got ${status}`);
+  await tab.waitForSelector(`a[href="${testUrl(test)}"] > button[title="Green"]`);
 }
 
 async function navigation() {
   await tab.waitForNavigation({
     timeout: 0,
-    waitUntil: 'networkidle',
+    waitUntil: 'networkidle0',
   });
-
-  if ((await tab.url()).endsWith('/authz_cb')) {
-    await tab.waitForNavigation({
-      timeout: 0,
-      waitUntil: 'networkidle',
-    });
-  }
 }
 
 async function navigate(destination) {
   await tab.goto(destination, {
     timeout: 0,
-    waitUntil: 'networkidle',
+    waitUntil: 'networkidle0',
   });
 }
 
@@ -65,12 +52,15 @@ async function login(fullflow = true) {
     await tab.type('input[name=login]', 'foo');
     await tab.type('input[name=password]', 'bar');
   }
-  await tab.click('button[type=submit]');
-  await navigation();
+
+  let nav = navigation();
+  tab.click('button[type=submit]');
+  await nav;
 
   if (await tab.$('button[type=submit]') && fullflow) {
-    await tab.click('button[type=submit]');
-    await navigation();
+    nav = navigation();
+    tab.click('button[type=submit]');
+    await nav;
   }
 }
 
@@ -104,7 +94,19 @@ async function captureError() {
   await navigate(testUrl(test));
   await proceed();
 
-  const body = await tab.evaluate(() => document.body.outerHTML);
+  const body = await tab.content();
+
+  await render(test);
+  assert(body.includes('oops! something went wrong'), 'expected body to be an error screen');
+}
+
+async function captureLogoutError() {
+  const test = this.test.title;
+  await navigate(testUrl(test));
+  await login();
+  await proceed();
+
+  const body = await tab.content();
 
   await render(test);
   assert(body.includes('oops! something went wrong'), 'expected body to be an error screen');
@@ -116,6 +118,34 @@ async function regular() {
   await navigate(testUrl(test));
   await login();
   await passed(test);
+}
+
+async function logout() {
+  const currentUrl = await tab.url();
+  assert(currentUrl.includes('/session/end?') || currentUrl.endsWith('/session/end'), `Expected to be on a logout prompt, got ${currentUrl} instead`);
+
+  const nav = navigation();
+  tab.click('button[autofocus]');
+  await nav;
+}
+
+async function regularWithLogout() {
+  const test = this.test.title;
+
+  await navigate(testUrl(test));
+  await login();
+  await logout();
+  await passed(test);
+}
+
+async function logoutNoResult() {
+  const test = this.test.title;
+
+  await navigate(testUrl(test));
+  await login();
+  await proceed();
+  await logout();
+  await render(test);
 }
 
 async function loginCaptureView() {
@@ -205,16 +235,13 @@ async function runSuite(profile) {
   body.match(/\(OP-[a-zA-Z+-_]+\)/g).forEach((test) => {
     const name = test.slice(4, -1);
     const [folder, ...file] = name.split('-');
-    const fileLocation = `test/${snakeCase(folder)}/${snakeCase(file)}.js`;
+    const fileLocation = `test/${snakeCase(folder)}/${snakeCase(file) || 'index'}.js`;
 
     if (!fs.existsSync(fileLocation)) {
-      missing.push(name);
+      missing.push(`${name} -> ${fileLocation}`);
       return;
     }
 
-    if (profile === 'CT' && snakeCase(file) === 'no_req_noncode') {
-      return;
-    }
     files.push(fileLocation);
   });
 
@@ -230,9 +257,13 @@ module.exports = {
   captureError,
   clearCookies,
   consentCaptureView,
+  captureLogoutError,
+  regularWithLogout,
+  logout,
   login,
   loginCaptureView,
   navigate,
+  logoutNoResult,
   navigation,
   nointeraction,
   passed,
