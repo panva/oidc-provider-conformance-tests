@@ -2,7 +2,7 @@ const {
   navigate, testUrl, login, proceed, passed,
 } = require('../helpers');
 
-it('OP-OAuth-2nd-30s', async function () {
+it.skip('OP-OAuth-2nd-30s', async function () {
   const test = this.test.title;
 
   await navigate(testUrl(test));
