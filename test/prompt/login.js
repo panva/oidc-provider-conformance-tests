@@ -9,6 +9,6 @@ it('OP-prompt-login', async function () {
   await proceed();
 
   await render(test);
-  await login();
+  await login(false);
   await passed(test);
 });

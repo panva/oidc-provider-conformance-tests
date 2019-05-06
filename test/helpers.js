@@ -24,8 +24,8 @@ function testUrl(pathname, { protocol = TEST_PROTOCOL, port = TEST_PORT, hostnam
   });
 }
 
-async function passed(test) {
-  await tab.waitForSelector(`a[href="${testUrl(test)}"] > button[title="Green"]`);
+async function passed(test, options = {}) {
+  await tab.waitForSelector(`a[href="${testUrl(test)}"] > button[title="Green"]`, options);
 }
 
 async function navigation() {
@@ -48,20 +48,20 @@ async function proceed() {
 }
 
 async function login(fullflow = true) {
+  let nav;
   if (await tab.$('input[name=login]')) {
     await tab.type('input[name=login]', 'foo');
     await tab.type('input[name=password]', 'bar');
-  }
-
-  let nav = navigation();
-  tab.click('button[type=submit]');
-  await nav;
-
-  if (await tab.$('button[type=submit]') && fullflow) {
     nav = navigation();
     tab.click('button[type=submit]');
     await nav;
   }
+
+  if (!fullflow) return;
+
+  nav = navigation();
+  tab.click('button[type=submit]');
+  await nav;
 }
 
 async function clearCookies(resource = `${ISSUER}/.well-known/openid-configuration`) {
