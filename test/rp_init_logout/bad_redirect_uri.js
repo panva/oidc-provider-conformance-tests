@@ -1,1 +1,1 @@
-it('OP-RpInitLogout-bad_redirect_uri', require('../helpers').captureLogoutError);
+it('OP-RpInitLogout-Bad_redirect_uri', require('../helpers').captureLogoutError);

@@ -1,1 +1,1 @@
-it('OP-RpInitLogout-no-state', require('../helpers').regularWithLogout);
+it('OP-RpInitLogout-No-state', require('../helpers').regularWithLogout);

@@ -1,1 +1,1 @@
-it('OP-RpInitLogout-no-params', require('../helpers').logoutNoResult);
+it('OP-RpInitLogout-No-params', require('../helpers').logoutNoResult);
