@@ -5,6 +5,7 @@ const fs = require('fs');
 const assert = require('assert');
 const timekeeper = require('timekeeper');
 const Mocha = require('mocha');
+const jose = require('@panva/jose');
 
 const mocha = new Mocha();
 
@@ -43,6 +44,7 @@ async function navigate(destination) {
 }
 
 async function proceed() {
+  await tab.waitForSelector('div.jumbotron', { timeout: 0 });
   const href = await tab.evaluate(() => document.links[0].href);
   await navigate(href);
 }
@@ -216,7 +218,16 @@ async function configure(profile) {
 }
 
 async function runSuite(profile) {
-  await configure(profile);
+  let validJWKS;
+  do {
+    await configure(profile);
+    const { body: jwks } = await got.get(testUrl(`/static/jwks_${TEST_PORT}.json`), {
+      json: true,
+    });
+    try {
+      validJWKS = jose.JWKS.KeyStore.fromJWKS(jwks);
+    } catch (err) {} // eslint-disable-line no-empty
+  } while (!validJWKS);
 
   const { body, headers: { date } } = await got.get(testUrl());
 

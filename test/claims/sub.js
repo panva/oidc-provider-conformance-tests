@@ -7,9 +7,9 @@ it('OP-claims-sub', async function () {
   await navigate(testUrl(test));
   await login();
 
-  const after = await tab.evaluate(() => document.links[0].href);
+  await tab.waitForSelector('div.jumbotron', { timeout: 0 });
 
-  if (!after) throw new Error('expected continue link to be present');
+  const after = await tab.evaluate(() => document.links[0].href);
 
   await clearCookies();
   await navigate(after);
