@@ -11,7 +11,7 @@ const mocha = new Mocha();
 
 let TEST_PORT;
 const {
-  ISSUER = 'https://guarded-cliffs-8635.herokuapp.com',
+  ISSUER = 'https://op.panva.cz',
   TEST_HOSTNAME = 'op.certification.openid.net',
   TEST_PROTOCOL = 'https',
 } = process.env;
