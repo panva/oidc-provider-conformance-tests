@@ -55,14 +55,14 @@ async function login(fullflow = true) {
     await tab.type('input[name=login]', 'foo');
     await tab.type('input[name=password]', 'bar');
     nav = navigation();
-    tab.click('button[type=submit]');
+    tab.click('button.login-submit[type=submit]');
     await nav;
   }
 
   if (!fullflow) return;
 
   nav = navigation();
-  tab.click('button[type=submit]');
+  tab.click('button.login-submit[type=submit]');
   await nav;
 }
 
