@@ -225,7 +225,7 @@ async function runSuite(profile) {
       json: true,
     });
     try {
-      validJWKS = jose.JWKS.KeyStore.fromJWKS(jwks);
+      validJWKS = jose.JWKS.asKeyStore(jwks);
     } catch (err) {} // eslint-disable-line no-empty
   } while (!validJWKS);
 
