@@ -83,7 +83,7 @@ async function nointeraction() {
 }
 
 async function render(test) {
-  if (!process.env.CI) {
+  if (!('CI' in process.env)) {
     await tab.screenshot({
       path: `${test}.png`,
       fullPage: true,
