@@ -4,9 +4,10 @@ const { clearCookies } = require('./helpers');
 let browser;
 
 before(async function () {
-  browser = await puppeteer.launch('CI' in process.env ? {
-    args: ['--no-sandbox'],
-  } : undefined);
+  browser = await puppeteer.launch({
+    ignoreHTTPSErrors: true,
+    ...('CI' in process.env ? { args: ['--no-sandbox'] } : undefined),
+  });
   global.tab = await browser.newPage();
 });
 
