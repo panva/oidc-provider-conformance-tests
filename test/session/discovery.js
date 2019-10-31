@@ -1,1 +1,1 @@
-it('OP-Session-discovery', require('../helpers').nointeraction);
+it('OP-Session-Discovery', require('../helpers').nointeraction);
