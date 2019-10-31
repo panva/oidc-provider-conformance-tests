@@ -207,6 +207,9 @@ async function configure(profile) {
     'tool:profile': '',
     'tool:sig': 'True',
     'tool:ui_locales': '',
+    'tool:session': 'True',
+    'tool:front': 'True',
+    'tool:back': 'True',
   };
 
   const { body: responseBody } = await got.post(testUrl(`/run/${encodeURIComponent(ISSUER)}/${tag}`, {
