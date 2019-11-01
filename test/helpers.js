@@ -5,7 +5,7 @@ const fs = require('fs');
 const assert = require('assert');
 const timekeeper = require('timekeeper');
 const Mocha = require('mocha');
-const jose = require('@panva/jose');
+const jose = require('jose');
 
 const mocha = new Mocha();
 
