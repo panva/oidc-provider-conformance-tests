@@ -32,14 +32,18 @@ async function passed(test, options = {}) {
 async function navigation() {
   await tab.waitForNavigation({
     timeout: 0,
-    waitUntil: 'networkidle0',
+    waitUntil: ['networkidle0', 'networkidle2', 'domcontentloaded', 'load'],
   });
+
+  if (tab.url().endsWith('/authz_cb')) {
+    await navigation();
+  }
 }
 
-async function navigate(destination) {
-  await tab.goto(destination, {
+function navigate(destination) {
+  return tab.goto(destination, {
     timeout: 0,
-    waitUntil: 'networkidle0',
+    waitUntil: ['networkidle0', 'networkidle2', 'domcontentloaded', 'load'],
   });
 }
 
@@ -50,20 +54,21 @@ async function proceed() {
 }
 
 async function login(fullflow = true) {
-  let nav;
   if (await tab.$('input[name=login]')) {
     await tab.type('input[name=login]', 'foo');
     await tab.type('input[name=password]', 'bar');
-    nav = navigation();
-    tab.click('button.login-submit[type=submit]');
-    await nav;
+    await Promise.all([
+      navigation(),
+      tab.click('button.login-submit[type=submit]'),
+    ]);
   }
 
   if (!fullflow) return;
 
-  nav = navigation();
-  tab.click('button.login-submit[type=submit]');
-  await nav;
+  await Promise.all([
+    navigation(),
+    tab.click('button.login-submit[type=submit]'),
+  ]);
 }
 
 async function clearCookies(resource = `${ISSUER}/.well-known/openid-configuration`) {
@@ -123,12 +128,13 @@ async function regular() {
 }
 
 async function logout() {
-  const currentUrl = await tab.url();
+  const currentUrl = tab.url();
   assert(currentUrl.includes('/session/end?') || currentUrl.endsWith('/session/end'), `Expected to be on a logout prompt, got ${currentUrl} instead`);
 
-  const nav = navigation();
-  tab.click('button[autofocus]');
-  await nav;
+  return Promise.all([
+    navigation(),
+    tab.click('button[autofocus]'),
+  ]);
 }
 
 async function regularWithLogout() {
