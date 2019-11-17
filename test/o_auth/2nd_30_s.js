@@ -3,6 +3,8 @@ const {
 } = require('../helpers');
 
 it('OP-OAuth-2nd-30s', async function () {
+  this.timeout(45000);
+
   const test = this.test.title;
 
   await navigate(testUrl(test));

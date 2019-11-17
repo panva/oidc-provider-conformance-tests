@@ -244,8 +244,8 @@ async function runSuite(profile) {
   timekeeper.travel(new Date(date));
 
   mocha.asyncOnly();
-  mocha.suite.timeout(60000);
-  mocha.suite.retries(3);
+  mocha.suite.timeout(15000);
+  mocha.suite.retries(2);
 
   const files = ['test/wrap.js'];
 
